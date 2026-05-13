@@ -175,10 +175,34 @@ textarea.f-input{resize:vertical;min-height:80px;}
 .hf-links{display:flex;gap:24px;}
 .hf-link{font-family:'JetBrains Mono',monospace;font-size:0.57rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:7px;transition:color 0.2s;}
 .hf-link.yt:hover{color:var(--red);}
-.hf-link.ig:hover{color:#e879a0;}
-.hf-copy{font-family:'JetBrains Mono',monospace;font-size:0.56rem;text-transform:uppercase;letter-spacing:0.18em;color:var(--muted);}
+.q-review-panel { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); padding: 32px; margin-bottom: 32px; display: none; animation: slideUpFade 0.5s ease-out forwards; }
+.q-review-panel.show { display: block; }
+@keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* â•â•â•â•â•â• MAGAZINE â•â•â•â•â•â• */
+.q-review-hdr { display: flex; align-items: center; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; font-weight: 800; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 16px; }
+.q-review-hdr.win { color: var(--green); }
+.q-review-hdr.lose { color: var(--red); }
+
+.q-review-summary { background: rgba(255, 255, 255, 0.015); padding: 20px; border-radius: 4px; margin-bottom: 24px; border-left: 3px solid var(--yellow); }
+.summary-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--yellow); margin-bottom: 8px; }
+.q-review-summary p { font-size: 0.88rem; line-height: 1.6; color: var(--text); font-weight: 300; margin: 0; }
+
+.q-review-list { display: flex; flex-direction: column; gap: 14px; }
+.q-review-item { padding: 18px; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; }
+.q-review-item.correct { border-color: rgba(61, 255, 160, 0.25); background: rgba(61, 255, 160, 0.03); }
+.q-review-item.chosen:not(.correct) { border-color: rgba(255, 77, 77, 0.25); background: rgba(255, 77, 77, 0.03); }
+
+.q-review-item-main { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.q-review-letter { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); color: var(--muted); border-radius: 4px; font-weight: 700; }
+.q-review-item.correct .q-review-letter { background: var(--green); color: var(--bg); }
+.q-review-item.chosen:not(.correct) .q-review-letter { background: var(--red); color: white; }
+
+.q-review-text { font-size: 0.9rem; font-weight: 500; color: var(--text); flex: 1; }
+.q-review-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; background: rgba(61, 255, 160, 0.1); color: var(--green); padding: 4px 8px; border: 1px solid rgba(61, 255, 160, 0.2); }
+
+.q-review-explain { font-size: 0.8rem; color: var(--muted); line-height: 1.6; padding-left: 40px; font-weight: 300; border-top: 1px solid rgba(255, 255, 255, 0.04); margin-top: 10px; padding-top: 10px; }
+
+/* â• â• â• â• â• â•  MAGAZINE â• â• â• â• â• â•  */
 .mag-issue-switcher{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:48px;}
 .issue-btn{font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;padding:10px 20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.2s;}
 .issue-btn:hover{border-color:var(--border2);color:var(--text);}

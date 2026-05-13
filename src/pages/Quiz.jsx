@@ -199,25 +199,36 @@ export default function Quiz() {
           })}
         </section>
 
-        <div className={`q-fb-detail ${chosen !== null ? 'show' : ''}`}>
-          <div className={`q-fb-header ${chosen === current.correct_idx ? 'win' : 'lose'}`}>
-            {chosen === current.correct_idx ? 'Excellent! That is correct.' : 'Not quite. Here is the breakdown:'}
+        <div className={`q-review-panel ${chosen !== null ? 'show' : ''}`}>
+          <div className={`q-review-hdr ${chosen === current.correct_idx ? 'win' : 'lose'}`}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            {chosen === current.correct_idx ? 'Correct! Well done.' : 'Incorrect. See the breakdown below:'}
           </div>
           
-          {current.explanation && <div className="q-fb-general">{current.explanation}</div>}
+          {current.explanation && (
+            <div className="q-review-summary">
+              <span className="summary-label">Key Concept</span>
+              <p>{current.explanation}</p>
+            </div>
+          )}
 
-          <div className="q-fb-list">
-            {current.options.map((opt, i) => (
-              <div key={i} className={`q-fb-item ${i === current.correct_idx ? 'is-correct' : ''} ${i === chosen ? 'is-chosen' : ''}`}>
-                <div className="q-fb-item-top">
-                  <span className="q-fb-letter">{String.fromCharCode(65 + i)}</span>
-                  <span className="q-fb-opt-txt">{opt}</span>
+          <div className="q-review-list">
+            {current.options.map((opt, i) => {
+              const isCorrect = i === current.correct_idx;
+              const isChosen = i === chosen;
+              return (
+                <div key={i} className={`q-review-item ${isCorrect ? 'correct' : ''} ${isChosen ? 'chosen' : ''}`}>
+                  <div className="q-review-item-main">
+                    <span className="q-review-letter">{String.fromCharCode(65 + i)}</span>
+                    <span className="q-review-text">{opt}</span>
+                    {isCorrect && <span className="q-review-badge">Correct Answer</span>}
+                  </div>
+                  {current.option_explanations?.[i] && (
+                    <div className="q-review-explain">{current.option_explanations[i]}</div>
+                  )}
                 </div>
-                {current.option_explanations?.[i] && (
-                  <div className="q-fb-item-explain">{current.option_explanations[i]}</div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
