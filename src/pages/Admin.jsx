@@ -57,6 +57,13 @@ export default function Admin() {
   const [issues, setIssues] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [users, setUsers] = useState([]);
+
+  const formatTime = (seconds) => {
+    if (!seconds) return '0s';
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
   const [hotspots, setHotspots] = useState([]);
   const [articles, setArticles] = useState([]);
   const [selectedIssueId, setSelectedIssueId] = useState('');
@@ -70,6 +77,8 @@ export default function Admin() {
   const [editingIssueId, setEditingIssueId] = useState(null);
   const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [editingArticleId, setEditingArticleId] = useState(null);
+  const [bulkJson, setBulkJson] = useState('');
+  const [showBulk, setShowBulk] = useState(false);
   const fileInputRef = useRef(null);
   const htmlInputRef = useRef(null);
   const articleImageRef = useRef(null);
@@ -288,6 +297,22 @@ export default function Admin() {
   const cancelEditQuestion = () => {
     setQuestionForm(emptyQuestion);
     setEditingQuestionId(null);
+  };
+
+  const handleBulkImport = async (e) => {
+    e.preventDefault();
+    if (!bulkJson.trim()) return;
+    try {
+      const questions = JSON.parse(bulkJson);
+      if (!Array.isArray(questions)) throw new Error('Input must be a JSON array');
+      const res = await api.post('/questions/bulk', { questions });
+      notify(`Imported ${res.data.count} questions`, 'ok');
+      setBulkJson('');
+      setShowBulk(false);
+      load();
+    } catch (err) {
+      notify(err.message || 'Bulk import failed', 'err');
+    }
   };
 
   const saveArticle = async (e) => {
@@ -783,6 +808,33 @@ export default function Admin() {
             {tab === 'questions' && (
               <div className="admin-panels active">
                 <h1 className="admin-pg-title">Quiz <span>Questions</span></h1>
+                
+                <div style={{ marginBottom: '24px' }}>
+                  <button className="nbtn yellow" type="button" onClick={() => setShowBulk(!showBulk)}>
+                    {showBulk ? 'Hide Bulk Import' : 'Show Bulk Import'}
+                  </button>
+                </div>
+
+                {showBulk && (
+                  <form className="issue-form" onSubmit={handleBulkImport}>
+                    <div className="issue-form-title">Bulk Import (JSON)</div>
+                    <div className="f-group">
+                      <label className="f-label">Paste JSON Array of Questions</label>
+                      <textarea 
+                        className="f-input" 
+                        style={{ height: '200px', fontFamily: 'monospace', fontSize: '0.75rem' }} 
+                        value={bulkJson} 
+                        onChange={(e) => setBulkJson(e.target.value)}
+                        placeholder='[{"question": "Example?", "options": ["A", "B", "C", "D"], "correct_idx": 0}]'
+                      />
+                    </div>
+                    <div className="f-help" style={{ marginBottom: '16px' }}>
+                      Format: Array of objects with question, options (4 strings), correct_idx (0-3). Optional: category, code_snippet, explanation, option_explanations.
+                    </div>
+                    <button className="btn-solid-green" type="submit">Import Questions</button>
+                  </form>
+                )}
+
                 <form className="issue-form" onSubmit={saveQuestion}>
                   <div className="issue-form-title">{editingQuestionId ? 'Update' : 'Create'} Question</div>
                   <div className="f-row">
@@ -850,13 +902,14 @@ export default function Admin() {
               <div className="admin-panels active">
                 <h1 className="admin-pg-title">User <span>Scores</span></h1>
                 <table className="data-table">
-                  <thead><tr><th>User</th><th>Role</th><th>Total</th><th>YT</th><th>AQ</th><th>Tech</th><th>Action</th></tr></thead>
+                  <thead><tr><th>User</th><th>Role</th><th>Total Score</th><th>Total Time</th><th>YT</th><th>AQ</th><th>Tech</th><th>Action</th></tr></thead>
                   <tbody>
                     {users.map((user) => (
                       <tr key={user.id}>
                         <td>{user.username}</td>
                         <td><span className={`badge ${user.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>{user.role}</span></td>
                         <td>{user.score_total || 0}</td>
+                        <td>{formatTime(user.time_total)}</td>
                         <td>{user.score_yt || 0}</td>
                         <td>{user.score_aq || 0}</td>
                         <td>{user.score_tech || 0}</td>

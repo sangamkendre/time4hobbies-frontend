@@ -59,10 +59,6 @@ export default function Quiz() {
     return 'A useful first pass. Try again and watch the score climb.';
   }, [correct, total]);
 
-  const chosenExplanation = chosen === null
-    ? ''
-    : current.option_explanations?.[chosen] || current.explanation || (chosen === current.correct_idx ? 'Correct.' : 'Not quite.');
-
   const choose = (optionIndex) => {
     if (chosen !== null) return;
     setChosen(optionIndex);
@@ -203,9 +199,28 @@ export default function Quiz() {
           })}
         </section>
 
-        <div className={`q-fb ${chosen !== null ? 'show' : ''} ${chosen === current.correct_idx ? 'win' : 'lose'}`}>
-          {chosenExplanation}
+        <div className={`q-fb-detail ${chosen !== null ? 'show' : ''}`}>
+          <div className={`q-fb-header ${chosen === current.correct_idx ? 'win' : 'lose'}`}>
+            {chosen === current.correct_idx ? 'Excellent! That is correct.' : 'Not quite. Here is the breakdown:'}
+          </div>
+          
+          {current.explanation && <div className="q-fb-general">{current.explanation}</div>}
+
+          <div className="q-fb-list">
+            {current.options.map((opt, i) => (
+              <div key={i} className={`q-fb-item ${i === current.correct_idx ? 'is-correct' : ''} ${i === chosen ? 'is-chosen' : ''}`}>
+                <div className="q-fb-item-top">
+                  <span className="q-fb-letter">{String.fromCharCode(65 + i)}</span>
+                  <span className="q-fb-opt-txt">{opt}</span>
+                </div>
+                {current.option_explanations?.[i] && (
+                  <div className="q-fb-item-explain">{current.option_explanations[i]}</div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
+
         <button className={`btn-next ${chosen !== null ? 'show' : ''}`} type="button" onClick={next} disabled={submitting}>
           {idx + 1 >= total ? (submitting ? 'Submitting...' : 'Finish Quiz') : 'Next Question'}
         </button>
