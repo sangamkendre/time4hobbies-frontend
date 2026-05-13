@@ -15,15 +15,25 @@ export default function Quiz() {
   const [chosen, setChosen] = useState(null);
   const [correct, setCorrect] = useState(0);
   const [finished, setFinished] = useState(false);
-  const [startTime, setStartTime] = useState(Date.now());
+  const [startTime, setStartTime] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!startTime || finished) return;
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [startTime, finished]);
 
   useEffect(() => {
     setIdx(0);
     setChosen(null);
     setCorrect(0);
     setFinished(false);
-    setStartTime(Date.now());
+    setStartTime(null);
+    setElapsed(0);
     api.get(`/questions?category=${category}`)
       .then((res) => {
         const loaded = res.data.questions?.length ? res.data.questions : fallbackQuestions.filter((q) => q.category === category);
@@ -35,6 +45,12 @@ export default function Quiz() {
   const current = questions[idx];
   const total = questions.length;
   const pct = total ? ((idx + 1) / total) * 100 : 0;
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   const resultMessage = useMemo(() => {
     const percent = total ? Math.round((correct / total) * 100) : 0;
@@ -51,6 +67,11 @@ export default function Quiz() {
     if (chosen !== null) return;
     setChosen(optionIndex);
     if (optionIndex === current.correct_idx) setCorrect((value) => value + 1);
+  };
+
+  const startQuiz = () => {
+    setStartTime(Date.now());
+    setElapsed(0);
   };
 
   const finish = async () => {
@@ -82,7 +103,7 @@ export default function Quiz() {
     setChosen(null);
   };
 
-  if (!current && !finished) {
+  if (!questions.length && !finished) {
     return (
       <div className="screen active">
         <nav className="t4h-nav">
@@ -90,7 +111,28 @@ export default function Quiz() {
           <div className="nav-right"><button className="nbtn" type="button" onClick={() => navigate('/dashboard')}>Dashboard</button></div>
         </nav>
         <main className="page-body">
-          <div className="panel">No questions are available for this category yet.</div>
+          <div className="panel">Loading questions...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!startTime && !finished) {
+    return (
+      <div className="screen active">
+        <nav className="t4h-nav">
+          <button className="nav-logo" type="button" onClick={() => navigate('/')}>TIME<span>4</span>HOBBIES</button>
+          <div className="nav-right"><button className="nbtn danger" type="button" onClick={() => navigate('/dashboard')}>Exit Quiz</button></div>
+        </nav>
+        <main className="result-center">
+          <div className="result-box">
+            <span className="res-lbl">{meta.label}</span>
+            <div className="res-big" style={{ fontSize: '3rem', marginBottom: '20px' }}>Ready?</div>
+            <p className="res-msg">This quiz has {total} questions. Your time starts as soon as you hit the button below.</p>
+            <div className="res-btns">
+              <button className="btn-solid-green" type="button" onClick={startQuiz}>Start Quiz</button>
+            </div>
+          </div>
         </main>
       </div>
     );
@@ -108,6 +150,7 @@ export default function Quiz() {
             <span className="res-lbl">{meta.label}</span>
             <div className="res-big">{correct}/{total}</div>
             <span className="res-lbl">Questions Correct</span>
+            <div className="res-time">Time: {formatTime(elapsed)}</div>
             <p className="res-msg">{resultMessage}</p>
             <div className="res-btns">
               <button className="nbtn" type="button" onClick={() => navigate('/dashboard')}>Dashboard</button>
@@ -135,6 +178,10 @@ export default function Quiz() {
           <div className="q-prog">
             <div className="q-prog-bar"><div className="q-prog-fill" style={{ width: `${pct}%` }} /></div>
             <span className="q-prog-txt">{idx + 1}/{total}</span>
+          </div>
+          <div className="q-timer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {formatTime(elapsed)}
           </div>
         </div>
 

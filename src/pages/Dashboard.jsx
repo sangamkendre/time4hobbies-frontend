@@ -50,6 +50,13 @@ export default function Dashboard() {
 
   const total = user?.score_total || 0;
 
+  const formatTime = (seconds) => {
+    if (!seconds) return '0s';
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
+
   const handleDeleteOtpRequest = async () => {
     setDeleteError('');
     setDeleteLoading(true);
@@ -133,7 +140,11 @@ export default function Dashboard() {
                   {index + 1}
                 </span>
                 <span className="lb-name">{entry.username}</span>
-                <span className="lb-score">{entry.score_total || 0} pts</span>
+                <div className="lb-score-wrap">
+                  <span className="lb-score">{entry.score_total || 0} pts</span>
+                  <span className="lb-sep">|</span>
+                  <span className="lb-time">{formatTime(entry.time_total)}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -155,6 +166,10 @@ export default function Dashboard() {
             <div className="stat-row">
               <span className="stat-k">Total Solved</span>
               <span className="stat-v">{total}</span>
+            </div>
+            <div className="stat-row">
+              <span className="stat-k">Total Time Taken</span>
+              <span className="stat-v">{formatTime(user?.time_total)}</span>
             </div>
           </div>
         </section>
