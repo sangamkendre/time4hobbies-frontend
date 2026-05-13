@@ -15,6 +15,7 @@ export default function Quiz() {
   const [chosen, setChosen] = useState(null);
   const [correct, setCorrect] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [startTime, setStartTime] = useState(Date.now());
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export default function Quiz() {
     setChosen(null);
     setCorrect(0);
     setFinished(false);
+    setStartTime(Date.now());
     api.get(`/questions?category=${category}`)
       .then((res) => {
         const loaded = res.data.questions?.length ? res.data.questions : fallbackQuestions.filter((q) => q.category === category);
@@ -53,10 +55,16 @@ export default function Quiz() {
 
   const finish = async () => {
     setSubmitting(true);
+    const time_taken = Math.floor((Date.now() - startTime) / 1000); // Time in seconds
     try {
-      await api.post('/quiz/submit', { category, total_qs: total, correct_qs: correct });
+      await api.post('/quiz/submit', { 
+        category, 
+        total_qs: total, 
+        correct_qs: correct,
+        time_taken 
+      });
       await refreshUser().catch(() => null);
-      notify('Quiz score submitted', 'ok');
+      notify(`Quiz score submitted (${time_taken}s)`, 'ok');
     } catch (err) {
       notify(err.response?.data?.error || 'Could not submit score', 'warn');
     } finally {
