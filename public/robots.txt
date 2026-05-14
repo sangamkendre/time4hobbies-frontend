@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.time4hobbies.in/sitemap.xml
