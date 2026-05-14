@@ -57,6 +57,10 @@ export const AuthProvider = ({ children }) => {
     return api.post('/auth/password-reset/confirm', { email, otp, password });
   };
 
+  const forgotUsername = async (email) => {
+    return api.post('/auth/forgot-username', { email });
+  };
+
   const requestAccountDelete = async () => {
     return api.post('/auth/account-delete/request');
   };
@@ -94,6 +98,7 @@ export const AuthProvider = ({ children }) => {
         sendOTP,
         requestPasswordReset,
         resetPassword,
+        forgotUsername,
         requestAccountDelete,
         deleteMyAccount,
       }}

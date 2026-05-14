@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
+import ForgotUsername from './pages/ForgotUsername';
 import Dashboard from './pages/Dashboard';
 import Magazine from './pages/Magazine';
 import Quiz from './pages/Quiz';
@@ -38,6 +39,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/forgot-username" element={<ForgotUsername />} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/quiz/:category" element={<PrivateRoute><Quiz /></PrivateRoute>} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />

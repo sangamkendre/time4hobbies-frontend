@@ -78,6 +78,8 @@ export default function Login() {
           <div className="auth-err">{error}</div>
           <p className="auth-switch">
             <button type="button" onClick={() => navigate('/forgot-password')}>Forgot password?</button>
+            <span style={{ margin: '0 8px', color: 'var(--text-dim)' }}>|</span>
+            <button type="button" onClick={() => navigate('/forgot-username')}>Forgot username?</button>
           </p>
           <p className="auth-switch">
             No account? <button type="button" onClick={() => navigate('/register')}>Create one free</button>
