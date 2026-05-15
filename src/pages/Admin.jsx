@@ -511,6 +511,25 @@ export default function Admin() {
     load();
   };
 
+  const deleteAllQuestions = async () => {
+    if (!window.confirm('WARNING: Are you sure you want to delete ALL questions? This is for the 15-day cycle reset and cannot be undone.')) return;
+    await api.delete('/questions/all').then(() => notify('All questions deleted', 'ok')).catch((err) => notify(err.response?.data?.error || 'Delete all failed', 'err'));
+    load();
+  };
+
+  const resetAllScores = async () => {
+    if (!window.confirm('WARNING: Are you sure you want to reset ALL user scores? This is for the 15-day cycle reset and cannot be undone.')) return;
+    await api.delete('/users/scores/all').then(() => notify('All scores reset', 'ok')).catch((err) => notify(err.response?.data?.error || 'Reset all failed', 'err'));
+    load();
+  };
+
+  const sendCongratulatoryEmails = async () => {
+    if (!window.confirm('Send congratulatory emails to all current Wall of Fame winners?')) return;
+    await api.post('/users/wall-of-fame/notify')
+      .then((res) => notify(res.data.message || 'Emails sent successfully', 'ok'))
+      .catch((err) => notify(err.response?.data?.error || 'Failed to send emails', 'err'));
+  };
+
   const updateHotspotField = (index, field, value) => {
     setHotspots((current) => current.map((hotspot, i) => (i === index ? { ...hotspot, [field]: value } : hotspot)));
   };
@@ -564,6 +583,19 @@ export default function Admin() {
                         <span>{siteConfig.ticker_items?.[1] || 'Next item'}</span>
                       </div>
                     </div>
+                  </div>
+                  
+                  <div className="settings-section">
+                    <h3>15-Day Competition Cycle</h3>
+                    <div className="form-group">
+                      <label className="f-label">Competition Start Date</label>
+                      <input className="f-input" type="date" value={siteConfig.comp_start_date || ''} onChange={(e) => setSiteConfig({ ...siteConfig, comp_start_date: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                      <label className="f-label">Competition End Date</label>
+                      <input className="f-input" type="date" value={siteConfig.comp_end_date || ''} onChange={(e) => setSiteConfig({ ...siteConfig, comp_end_date: e.target.value })} />
+                    </div>
+                    <button type="button" className="btn-act btn-blue" onClick={sendCongratulatoryEmails}>Send Wall of Fame Emails</button>
                   </div>
 
                   <div className="issue-form-title">Home Hero</div>
@@ -919,9 +951,12 @@ export default function Admin() {
               <div className="admin-panels active">
                 <h1 className="admin-pg-title">Quiz <span>Questions</span></h1>
                 
-                <div style={{ marginBottom: '24px' }}>
+                <div style={{ marginBottom: '24px', display: 'flex', gap: '12px' }}>
                   <button className="nbtn yellow" type="button" onClick={() => setShowBulk(!showBulk)}>
                     {showBulk ? 'Hide Bulk Import' : 'Show Bulk Import'}
+                  </button>
+                  <button className="nbtn danger" type="button" onClick={deleteAllQuestions}>
+                    Delete All Questions
                   </button>
                 </div>
 
@@ -1025,7 +1060,17 @@ export default function Admin() {
 
             {tab === 'users' && (
               <div className="admin-panels active">
-                <h1 className="admin-pg-title">User <span>Scores</span></h1>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '15px' }}>
+                  <h1 className="admin-pg-title" style={{ margin: 0 }}>User <span>Scores</span></h1>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="nbtn primary" type="button" onClick={sendCongratulatoryEmails}>
+                      Send Winner Emails
+                    </button>
+                    <button className="nbtn danger" type="button" onClick={resetAllScores}>
+                      Reset All Scores
+                    </button>
+                  </div>
+                </div>
                 <table className="data-table">
                   <thead><tr><th>User</th><th>Role</th><th>Total Score</th><th>Total Time</th><th>YT</th><th>AQ</th><th>Tech</th><th>Action</th></tr></thead>
                   <tbody>

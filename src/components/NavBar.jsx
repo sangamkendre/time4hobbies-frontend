@@ -76,6 +76,13 @@ export default function NavBar({ compact = false }) {
             >
               Quiz
             </button>
+            <button
+              className={`nav-link ${location.pathname === '/wall-of-fame' ? 'active' : ''}`}
+              type="button"
+              onClick={() => navTo('/wall-of-fame')}
+            >
+              Wall of Fame
+            </button>
             {user?.role === 'admin' && (
               <button className={`nav-link ${location.pathname.startsWith('/admin') ? 'active' : ''}`} type="button" onClick={() => navTo('/admin')}>
                 Admin

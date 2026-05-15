@@ -184,6 +184,8 @@ export const fallbackSiteConfig = {
     { key: 'iot', label: 'IoT', description: 'Sensors, microcontrollers, networking, and device logic.', color: 'green', icon: 'IO' },
     { key: 'sql', label: 'SQL', description: 'Databases, queries, joins, and data manipulation.', color: 'blue', icon: 'SQL' },
   ],
+  comp_start_date: '2026-05-15',
+  comp_end_date: '2026-05-30',
 };
 
 export const categoryMeta = {
