@@ -335,6 +335,21 @@ textarea.f-input{resize:vertical;min-height:80px;}
 .cc-name{font-family:'Bebas Neue',sans-serif;font-size:1.65rem;letter-spacing:0.05em;margin-bottom:6px;}
 .cc-count{font-size:0.76rem;color:var(--muted);font-weight:300;}
 .cc-ghost{position:absolute;bottom:20px;right:20px;font-family:'Bebas Neue',sans-serif;font-size:2.4rem;opacity:0.06;}
+.quiz-track-section{margin-bottom:40px;}
+.track-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.track-card{border:1px solid var(--border);background:rgba(255,255,255,0.02);padding:22px;position:relative;overflow:hidden;}
+.track-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green);}
+.track-blue::before{background:var(--blue);}
+.track-red::before{background:var(--red);}
+.track-yellow::before{background:var(--yellow);}
+.track-head{display:flex;gap:14px;align-items:flex-start;margin-bottom:18px;}
+.track-icon{width:42px;height:42px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--green);flex-shrink:0;}
+.track-name{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:0.05em;}
+.track-desc{font-size:0.74rem;color:var(--muted);line-height:1.5;margin-top:4px;}
+.difficulty-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.diff-pill{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.56rem;text-transform:uppercase;letter-spacing:0.12em;padding:10px 8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;}
+.diff-pill:hover{border-color:rgba(61,255,160,0.45);color:var(--green);}
+.diff-pill b{font-size:0.68rem;color:var(--green);}
 .dash-bottom{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 .lb-row{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);}
 .lb-row:last-child{border-bottom:none;}
@@ -570,7 +585,7 @@ textarea.f-input{resize:vertical;min-height:80px;}
   .mag-issue-title{font-size:2rem;}
   .reader-step{font-size:0.5rem;padding:7px 10px;}
   .reader-progress{gap:6px;}
-  .dash-bottom,.f-row,.articles-cms-grid,.category-cms-grid,.admin-split{grid-template-columns:1fr;}
+  .dash-bottom,.f-row,.articles-cms-grid,.category-cms-grid,.admin-split,.track-grid{grid-template-columns:1fr;}
   .dash-hero{flex-direction:column;text-align:center;padding:24px;}
   .ds-num{font-size:2.2rem;}
   .cat-grid{grid-template-columns:1fr;}

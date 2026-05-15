@@ -105,6 +105,8 @@ export const fallbackQuestions = [
   {
     id: 'q-tech-1',
     category: 'tech',
+    subcategory: 'python',
+    difficulty: 'basic',
     question: 'In Python, what does this expression return?',
     code_snippet: 'len([2, 4, 6, 8])',
     options: ['2', '4', '6', '8'],
@@ -120,6 +122,8 @@ export const fallbackQuestions = [
   {
     id: 'q-tech-2',
     category: 'tech',
+    subcategory: 'python',
+    difficulty: 'basic',
     question: 'Which file type is commonly used for tabular data exports?',
     options: ['CSV', 'PNG', 'MP3', 'EXE'],
     correct_idx: 0,
@@ -172,10 +176,24 @@ export const fallbackSiteConfig = {
     { name: 'YouTube', description: 'Creator Setups - Gear - Tips', color: 'red', icon: 'Y' },
     { name: 'Aquascaping', description: 'Planted Tanks - Fish - Guides', color: 'yellow', icon: 'A' },
   ],
+  quiz_subcategories: [
+    { key: 'python', label: 'Python', description: 'Syntax, data handling, scripting, and problem solving.', color: 'green', icon: 'PY' },
+    { key: 'js', label: 'JavaScript', description: 'Browser logic, functions, objects, and async basics.', color: 'yellow', icon: 'JS' },
+    { key: 'java', label: 'Java', description: 'Core Java, OOP, collections, and backend fundamentals.', color: 'red', icon: 'JV' },
+    { key: 'ai', label: 'AI', description: 'Machine learning concepts, prompts, models, and workflows.', color: 'blue', icon: 'AI' },
+    { key: 'iot', label: 'IoT', description: 'Sensors, microcontrollers, networking, and device logic.', color: 'green', icon: 'IO' },
+    { key: 'sql', label: 'SQL', description: 'Databases, queries, joins, and data manipulation.', color: 'blue', icon: 'SQL' },
+  ],
 };
 
 export const categoryMeta = {
   yt: { label: 'YouTube / Content', short: 'YouTube', className: 'yt', accent: 'var(--red)', ghost: 'YT' },
   aq: { label: 'Aquascaping', short: 'Aquascaping', className: 'aq', accent: 'var(--blue)', ghost: 'AQ' },
   tech: { label: 'Tech / Data / Python', short: 'Tech / Python', className: 'tech', accent: 'var(--green)', ghost: 'PY' },
+};
+
+export const difficultyMeta = {
+  basic: { label: 'Basic', short: 'Basic' },
+  intermediate: { label: 'Intermediate', short: 'Inter' },
+  advanced: { label: 'Advanced', short: 'Adv' },
 };

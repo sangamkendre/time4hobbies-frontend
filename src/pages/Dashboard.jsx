@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { categoryMeta, fallbackLeaderboard, fallbackQuestions } from '../data/fallback';
+import { categoryMeta, difficultyMeta, fallbackLeaderboard, fallbackQuestions, fallbackSiteConfig } from '../data/fallback';
 import { notify } from '../utils/notify';
 
 export default function Dashboard() {
@@ -11,6 +11,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [questions, setQuestions] = useState(fallbackQuestions);
   const [leaderboard, setLeaderboard] = useState(fallbackLeaderboard);
+  const [siteConfig, setSiteConfig] = useState(fallbackSiteConfig);
   const [deleteStep, setDeleteStep] = useState('idle');
   const [deleteOtp, setDeleteOtp] = useState('');
   const [deleteError, setDeleteError] = useState('');
@@ -31,6 +32,12 @@ export default function Dashboard() {
       })
       .catch(() => {});
 
+    api.get('/site-config')
+      .then((res) => {
+        if (live && res.data.config) setSiteConfig({ ...fallbackSiteConfig, ...res.data.config });
+      })
+      .catch(() => {});
+
     return () => {
       live = false;
     };
@@ -42,6 +49,20 @@ export default function Dashboard() {
       return acc;
     }, {});
   }, [questions]);
+  const quizSubcategories = siteConfig.quiz_subcategories || fallbackSiteConfig.quiz_subcategories;
+  const trackCounts = useMemo(() => {
+    return quizSubcategories.reduce((acc, item) => {
+      acc[item.key] = Object.keys(difficultyMeta).reduce((levels, level) => {
+        levels[level] = questions.filter((q) => (
+          q.category === 'tech'
+          && (q.subcategory || 'python') === item.key
+          && (q.difficulty || 'basic') === level
+        )).length;
+        return levels;
+      }, {});
+      return acc;
+    }, {});
+  }, [questions, quizSubcategories]);
 
   const rank = useMemo(() => {
     const idx = leaderboard.findIndex((entry) => entry.username === user?.username);
@@ -121,7 +142,18 @@ export default function Dashboard() {
 
         <section className="cat-grid">
           {Object.entries(categoryMeta).map(([key, meta]) => (
-            <button className={`cat-card cc-${meta.className}`} type="button" key={key} onClick={() => navigate(`/quiz/${key}`)}>
+            <button 
+              className={`cat-card cc-${meta.className}`} 
+              type="button" 
+              key={key} 
+              onClick={() => {
+                if (key === 'tech') {
+                  navigate('/tech-tracks');
+                } else {
+                  navigate(`/quiz/${key}`);
+                }
+              }}
+            >
               <div className="cat-logo" style={{ background: meta.accent }} />
               <span className="cc-lbl">{meta.short}</span>
               <div className="cc-name">{meta.label}</div>

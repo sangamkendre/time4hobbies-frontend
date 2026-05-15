@@ -1,16 +1,26 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { categoryMeta, fallbackQuestions } from '../data/fallback';
+import { categoryMeta, difficultyMeta, fallbackQuestions, fallbackSiteConfig } from '../data/fallback';
 import { notify } from '../utils/notify';
 
 export default function Quiz() {
   const { category = 'tech' } = useParams();
+  const [searchParams] = useSearchParams();
+  const subcategory = searchParams.get('subcategory') || '';
+  const difficulty = searchParams.get('difficulty') || '';
   const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
+  const [siteConfig, setSiteConfig] = useState(fallbackSiteConfig);
   const meta = categoryMeta[category] || categoryMeta.tech;
-  const [questions, setQuestions] = useState(() => fallbackQuestions.filter((q) => q.category === category));
+  const fallbackMatches = (q) => (
+    q.category === category
+    && (!subcategory || (q.subcategory || 'python') === subcategory)
+    && (!difficulty || (q.difficulty || 'basic') === difficulty)
+  );
+  const [questions, setQuestions] = useState(() => fallbackQuestions.filter(fallbackMatches));
+  const [loading, setLoading] = useState(true);
   const [idx, setIdx] = useState(0);
   const [chosen, setChosen] = useState(null);
   const [correct, setCorrect] = useState(0);
@@ -34,17 +44,44 @@ export default function Quiz() {
     setFinished(false);
     setStartTime(null);
     setElapsed(0);
-    api.get(`/questions?category=${category}`)
+    setLoading(true);
+    const params = new URLSearchParams({ category });
+    if (subcategory) params.set('subcategory', subcategory);
+    if (difficulty) params.set('difficulty', difficulty);
+
+    api.get(`/questions?${params.toString()}`)
       .then((res) => {
-        const loaded = res.data.questions?.length ? res.data.questions : fallbackQuestions.filter((q) => q.category === category);
+        const loaded = res.data.questions?.length ? res.data.questions : fallbackQuestions.filter(fallbackMatches);
         setQuestions(loaded);
       })
-      .catch(() => setQuestions(fallbackQuestions.filter((q) => q.category === category)));
-  }, [category]);
+      .catch(() => setQuestions(fallbackQuestions.filter(fallbackMatches)))
+      .finally(() => setLoading(false));
+  }, [category, subcategory, difficulty]);
+
+  useEffect(() => {
+    api.get('/site-config')
+      .then((res) => {
+        if (res.data.config) {
+          const fetchedConfig = res.data.config;
+          if (fetchedConfig.quiz_subcategories && !fetchedConfig.quiz_subcategories.find(t => t.key === 'sql')) {
+            const sqlFallback = fallbackSiteConfig.quiz_subcategories.find(t => t.key === 'sql');
+            if (sqlFallback) fetchedConfig.quiz_subcategories.push(sqlFallback);
+          }
+          setSiteConfig({ ...fallbackSiteConfig, ...fetchedConfig });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const current = questions[idx];
   const total = questions.length;
   const pct = total ? ((idx + 1) / total) * 100 : 0;
+  const track = (siteConfig.quiz_subcategories || fallbackSiteConfig.quiz_subcategories)
+    .find((item) => item.key === subcategory);
+  const quizLabel = [
+    track?.label || meta.label,
+    difficulty ? difficultyMeta[difficulty]?.label || difficulty : '',
+  ].filter(Boolean).join(' / ');
 
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -76,6 +113,8 @@ export default function Quiz() {
     try {
       await api.post('/quiz/submit', { 
         category, 
+        subcategory: subcategory || null,
+        difficulty: difficulty || null,
         total_qs: total, 
         correct_qs: correct,
         time_taken 
@@ -107,7 +146,14 @@ export default function Quiz() {
           <div className="nav-right"><button className="nbtn" type="button" onClick={() => navigate('/dashboard')}>Dashboard</button></div>
         </nav>
         <main className="page-body">
-          <div className="panel">Loading questions...</div>
+          <div className="panel">
+            {loading ? 'Loading questions...' : `No questions ready for ${quizLabel} yet.`}
+            {!loading && (
+              <div style={{ marginTop: '18px' }}>
+                <button className="nbtn" type="button" onClick={() => navigate('/dashboard')}>Choose Another Quiz</button>
+              </div>
+            )}
+          </div>
         </main>
       </div>
     );
@@ -122,7 +168,7 @@ export default function Quiz() {
         </nav>
         <main className="result-center">
           <div className="result-box">
-            <span className="res-lbl">{meta.label}</span>
+            <span className="res-lbl">{quizLabel}</span>
             <div className="res-big" style={{ fontSize: '3rem', marginBottom: '20px' }}>Ready?</div>
             <p className="res-msg">This quiz has {total} questions. Your time starts as soon as you hit the button below.</p>
             <div className="res-btns">
@@ -143,7 +189,7 @@ export default function Quiz() {
         </nav>
         <main className="result-center">
           <div className="result-box">
-            <span className="res-lbl">{meta.label}</span>
+            <span className="res-lbl">{quizLabel}</span>
             <div className="res-big">{correct}/{total}</div>
             <span className="res-lbl">Questions Correct</span>
             <div className="res-time">Time: {formatTime(elapsed)}</div>
@@ -170,7 +216,7 @@ export default function Quiz() {
 
       <main className="quiz-wrap">
         <div className="quiz-hdr">
-          <div className={`qbadge ${meta.className}`}>{meta.label}</div>
+          <div className={`qbadge ${meta.className}`}>{quizLabel}</div>
           <div className="q-prog">
             <div className="q-prog-bar"><div className="q-prog-fill" style={{ width: `${pct}%` }} /></div>
             <span className="q-prog-txt">{idx + 1}/{total}</span>

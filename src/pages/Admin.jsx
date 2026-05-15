@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import NavBar from '../components/NavBar';
 import api from '../services/api';
-import { categoryMeta, fallbackSiteConfig } from '../data/fallback';
+import { categoryMeta, difficultyMeta, fallbackSiteConfig } from '../data/fallback';
 import { notify } from '../utils/notify';
 
 const emptyIssue = {
@@ -19,6 +19,8 @@ const emptyIssue = {
 
 const emptyQuestion = {
   category: 'tech',
+  subcategory: 'python',
+  difficulty: 'basic',
   question: '',
   code_snippet: '',
   options: ['', '', '', ''],
@@ -51,6 +53,12 @@ const categoryColors = {
   red: 'var(--red)',
   yellow: 'var(--yellow)',
 };
+
+const slugify = (value) => String(value || '')
+  .trim()
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
 
 export default function Admin() {
   const [tab, setTab] = useState('settings');
@@ -87,6 +95,7 @@ export default function Admin() {
     () => issues.find((issue) => issue.id === selectedIssueId),
     [issues, selectedIssueId]
   );
+  const quizSubcategories = siteConfig.quiz_subcategories || fallbackSiteConfig.quiz_subcategories;
 
   const loadHotspots = (issueId = selectedIssueId) => {
     if (!issueId) {
@@ -121,7 +130,19 @@ export default function Admin() {
     api.get('/questions').then((res) => setQuestions(res.data.questions || [])).catch(() => {});
     api.get('/users').then((res) => setUsers(res.data.users || [])).catch(() => {});
     api.get('/site-config').then((res) => {
-      if (res.data.config) setSiteConfig({ ...fallbackSiteConfig, ...res.data.config });
+      if (res.data.config) {
+        const fetchedConfig = res.data.config;
+        
+        // Ensure SQL track is merged in if it's missing from the backend config
+        if (fetchedConfig.quiz_subcategories && !fetchedConfig.quiz_subcategories.find(t => t.key === 'sql')) {
+          const sqlFallback = fallbackSiteConfig.quiz_subcategories.find(t => t.key === 'sql');
+          if (sqlFallback) {
+            fetchedConfig.quiz_subcategories.push(sqlFallback);
+          }
+        }
+        
+        setSiteConfig({ ...fallbackSiteConfig, ...fetchedConfig });
+      }
     }).catch(() => {});
   };
 
@@ -201,11 +222,22 @@ export default function Admin() {
   const saveSiteConfig = async (e) => {
     e.preventDefault();
     try {
+      let parsedQuizSubcategories = siteConfig.quiz_subcategories;
+      if (typeof parsedQuizSubcategories === 'string') {
+        try {
+          parsedQuizSubcategories = JSON.parse(parsedQuizSubcategories);
+        } catch (e) {
+          notify('Invalid JSON in Quiz Subcategories', 'err');
+          return;
+        }
+      }
+
       const payload = {
         ...siteConfig,
         ticker_items: Array.isArray(siteConfig.ticker_items)
           ? siteConfig.ticker_items
           : String(siteConfig.ticker_items).split('\n'),
+        quiz_subcategories: parsedQuizSubcategories
       };
       const res = await api.put('/site-config', payload);
       setSiteConfig({ ...fallbackSiteConfig, ...res.data.config });
@@ -219,6 +251,33 @@ export default function Admin() {
     const categories = [...(siteConfig.home_categories || fallbackSiteConfig.home_categories)];
     categories[index] = { ...categories[index], [field]: value };
     setSiteConfig({ ...siteConfig, home_categories: categories });
+  };
+
+  const updateQuizSubcategory = (index, field, value) => {
+    const categories = [...quizSubcategories];
+    const next = { ...categories[index], [field]: value };
+    if (field === 'label' && !categories[index].key) next.key = slugify(value);
+    categories[index] = next;
+    setSiteConfig({ ...siteConfig, quiz_subcategories: categories });
+  };
+
+  const addQuizSubcategory = () => {
+    const nextNumber = quizSubcategories.length + 1;
+    setSiteConfig({
+      ...siteConfig,
+      quiz_subcategories: [
+        ...quizSubcategories,
+        { key: `track-${nextNumber}`, label: 'New Track', description: '', color: 'green', icon: 'N' },
+      ],
+    });
+  };
+
+  const removeQuizSubcategory = (index) => {
+    const categories = quizSubcategories.filter((_, itemIndex) => itemIndex !== index);
+    setSiteConfig({
+      ...siteConfig,
+      quiz_subcategories: categories.length ? categories : fallbackSiteConfig.quiz_subcategories,
+    });
   };
 
   const saveIssue = async (e) => {
@@ -267,6 +326,10 @@ export default function Admin() {
     try {
       const payload = {
         ...questionForm,
+        subcategory: questionForm.category === 'tech'
+          ? (questionForm.subcategory || quizSubcategories[0]?.key || 'python')
+          : questionForm.subcategory,
+        difficulty: questionForm.difficulty || 'basic',
         options: questionForm.options.map((option) => option.trim()),
         option_explanations: questionForm.option_explanations.map((item) => item.trim()),
         correct_idx: Number(questionForm.correct_idx),
@@ -289,7 +352,14 @@ export default function Admin() {
   };
 
   const editQuestion = (question) => {
-    setQuestionForm({ ...question });
+    setQuestionForm({
+      ...emptyQuestion,
+      ...question,
+      subcategory: question.subcategory || (question.category === 'tech' ? 'python' : ''),
+      difficulty: question.difficulty || 'basic',
+      options: Array.isArray(question.options) ? question.options : ['', '', '', ''],
+      option_explanations: Array.isArray(question.option_explanations) ? question.option_explanations : ['', '', '', ''],
+    });
     setEditingQuestionId(question.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -531,6 +601,30 @@ export default function Admin() {
                     ))}
                   </div>
 
+                  <div className="issue-form-title">Quiz Tech Tracks</div>
+                  <div className="category-cms-grid">
+                    {quizSubcategories.map((item, index) => (
+                      <div className="category-cms-item" key={`${item.key}-${index}`}>
+                        <div className="f-row compact-row">
+                          <div><label className="f-label">Icon</label><input className="f-input" value={item.icon || ''} onChange={(e) => updateQuizSubcategory(index, 'icon', e.target.value)} /></div>
+                          <div>
+                            <label className="f-label">Color</label>
+                            <select className="f-input" value={item.color || 'green'} onChange={(e) => updateQuizSubcategory(index, 'color', e.target.value)}>
+                              {Object.keys(categoryColors).map((color) => <option value={color} key={color}>{color}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                        <div className="f-row compact-row">
+                          <div><label className="f-label">Key</label><input className="f-input" value={item.key || ''} onChange={(e) => updateQuizSubcategory(index, 'key', slugify(e.target.value))} /></div>
+                          <div><label className="f-label">Name</label><input className="f-input" value={item.label || ''} onChange={(e) => updateQuizSubcategory(index, 'label', e.target.value)} /></div>
+                        </div>
+                        <div className="f-group"><label className="f-label">Description</label><textarea className="f-input" value={item.description || ''} onChange={(e) => updateQuizSubcategory(index, 'description', e.target.value)} /></div>
+                        <button className="btn-act btn-red" type="button" onClick={() => removeQuizSubcategory(index)}>Remove</button>
+                      </div>
+                    ))}
+                  </div>
+                  <button className="btn-act btn-blue" type="button" onClick={addQuizSubcategory}>Add Quiz Track</button>
+
                   <div className="issue-form-title">Featured Reads and Quiz CTA</div>
                   <div className="f-row">
                     <div><label className="f-label">Featured Label</label><input className="f-input" value={siteConfig.home_featured_label || ''} onChange={(e) => setSiteConfig({ ...siteConfig, home_featured_label: e.target.value })} /></div>
@@ -549,6 +643,22 @@ export default function Admin() {
                   </div>
                   <div className="f-group"><label className="f-label">Panel Description</label><textarea className="f-input" value={siteConfig.interactive_description} onChange={(e) => setSiteConfig({ ...siteConfig, interactive_description: e.target.value })} /></div>
                   <div className="f-group"><label className="f-label">Panel Background Image URL</label><input className="f-input" value={siteConfig.interactive_bg_url} onChange={(e) => setSiteConfig({ ...siteConfig, interactive_bg_url: e.target.value })} /></div>
+                  
+                  <div className="issue-form-title">Quiz Settings</div>
+                  <div className="f-group">
+                    <label className="f-label">Tech Quiz Subcategories (JSON Format)</label>
+                    <textarea 
+                      className="f-input" 
+                      style={{ height: '200px', fontFamily: 'monospace', fontSize: '0.75rem' }}
+                      value={typeof siteConfig.quiz_subcategories === 'string' ? siteConfig.quiz_subcategories : JSON.stringify(siteConfig.quiz_subcategories || fallbackSiteConfig.quiz_subcategories, null, 2)} 
+                      onChange={(e) => setSiteConfig({ ...siteConfig, quiz_subcategories: e.target.value })}
+                      placeholder='[{"key": "python", "label": "Python", "description": "...", "color": "green", "icon": "PY"}]'
+                    />
+                    <div className="f-help" style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: '6px' }}>
+                      Must be a valid JSON array. Keys available for color: green, blue, red, yellow.
+                    </div>
+                  </div>
+
                   <button className="btn-solid-green" type="submit">Save Settings</button>
                 </form>
               </div>
@@ -829,7 +939,7 @@ export default function Admin() {
                       />
                     </div>
                     <div className="f-help" style={{ marginBottom: '16px' }}>
-                      Format: Array of objects with question, options (4 strings), correct_idx (0-3). Optional: category, code_snippet, explanation, option_explanations.
+                      Format: Array of objects with question, options (4 strings), correct_idx (0-3). Optional: category, subcategory, difficulty, code_snippet, explanation, option_explanations.
                     </div>
                     <button className="btn-solid-green" type="submit">Import Questions</button>
                   </form>
@@ -840,8 +950,21 @@ export default function Admin() {
                   <div className="f-row">
                     <div>
                       <label className="f-label">Category</label>
-                      <select className="f-input" value={questionForm.category} onChange={(e) => setQuestionForm({ ...questionForm, category: e.target.value })}>
+                      <select className="f-input" value={questionForm.category} onChange={(e) => setQuestionForm({ ...questionForm, category: e.target.value, subcategory: e.target.value === 'tech' ? (questionForm.subcategory || quizSubcategories[0]?.key || 'python') : '' })}>
                         {Object.entries(categoryMeta).map(([key, meta]) => <option value={key} key={key}>{meta.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="f-label">Subcategory</label>
+                      <select className="f-input" value={questionForm.subcategory || ''} onChange={(e) => setQuestionForm({ ...questionForm, subcategory: e.target.value })} disabled={questionForm.category !== 'tech'}>
+                        {questionForm.category !== 'tech' && <option value="">Not used</option>}
+                        {quizSubcategories.map((item) => <option value={item.key} key={item.key}>{item.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="f-label">Level</label>
+                      <select className="f-input" value={questionForm.difficulty || 'basic'} onChange={(e) => setQuestionForm({ ...questionForm, difficulty: e.target.value })}>
+                        {Object.entries(difficultyMeta).map(([key, meta]) => <option value={key} key={key}>{meta.label}</option>)}
                       </select>
                     </div>
                     <div>
@@ -881,11 +1004,13 @@ export default function Admin() {
                 </form>
 
                 <table className="data-table">
-                  <thead><tr><th>Category</th><th>Question</th><th>Action</th></tr></thead>
+                  <thead><tr><th>Category</th><th>Track</th><th>Level</th><th>Question</th><th>Action</th></tr></thead>
                   <tbody>
                     {questions.map((question) => (
                       <tr key={question.id}>
                         <td>{question.category}</td>
+                        <td>{question.subcategory || '-'}</td>
+                        <td>{question.difficulty || 'basic'}</td>
                         <td>{question.question}</td>
                         <td className="ii-actions">
                           <button className="btn-act btn-blue" type="button" onClick={() => editQuestion(question)}>Edit</button>

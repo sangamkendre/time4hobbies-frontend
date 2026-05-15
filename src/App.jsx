@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import Magazine from './pages/Magazine';
 import Quiz from './pages/Quiz';
 import Admin from './pages/Admin';
+import TechTracks from './pages/TechTracks';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -41,6 +42,7 @@ const App = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/forgot-username" element={<ForgotUsername />} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/tech-tracks" element={<PrivateRoute><TechTracks /></PrivateRoute>} />
           <Route path="/quiz/:category" element={<PrivateRoute><Quiz /></PrivateRoute>} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
