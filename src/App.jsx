@@ -15,16 +15,17 @@ import Quiz from './pages/Quiz';
 import Admin from './pages/Admin';
 import TechTracks from './pages/TechTracks';
 import WallOfFame from './pages/WallOfFame';
+import Loader from './components/Loader';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div className="screen active"><div className="page-body">Loading...</div></div>;
+  if (loading) return <Loader />;
   return user ? children : <Navigate to="/login" />;
 };
 
 const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div className="screen active"><div className="page-body">Loading...</div></div>;
+  if (loading) return <Loader />;
   if (!user) return <Navigate to="/login" />;
   return user.role === 'admin' ? children : <Navigate to="/dashboard" />;
 };

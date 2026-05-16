@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar';
 import api from '../services/api';
 import { fallbackSiteConfig } from '../data/fallback';
+import Loader from '../components/Loader';
 
 export default function WallOfFame() {
   const [data, setData] = useState({ yt: [], aq: [], tech: {} });
@@ -271,7 +272,7 @@ export default function WallOfFame() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading the elites...</div>
+          <Loader />
         ) : (
           <div className="podium-grid">
             {siteConfig.quiz_subcategories.map((sub) => (

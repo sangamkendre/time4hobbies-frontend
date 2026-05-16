@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { categoryMeta, difficultyMeta, fallbackQuestions, fallbackSiteConfig } from '../data/fallback';
 import { notify } from '../utils/notify';
+import Loader from '../components/Loader';
 
 export default function Quiz() {
   const { category = 'tech' } = useParams();
@@ -147,7 +148,7 @@ export default function Quiz() {
         </nav>
         <main className="page-body">
           <div className="panel">
-            {loading ? 'Loading questions...' : `No questions ready for ${quizLabel} yet.`}
+            {loading ? <Loader /> : `No questions ready for ${quizLabel} yet.`}
             {!loading && (
               <div style={{ marginTop: '18px' }}>
                 <button className="nbtn" type="button" onClick={() => navigate('/dashboard')}>Choose Another Quiz</button>
