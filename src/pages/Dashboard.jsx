@@ -22,7 +22,9 @@ export default function Dashboard() {
 
     api.get('/questions')
       .then((res) => {
-        if (live && Array.isArray(res.data.questions)) setQuestions(res.data.questions);
+        if (live && Array.isArray(res.data.questions)) {
+          setQuestions(res.data.questions.length ? res.data.questions : fallbackQuestions);
+        }
       })
       .catch(() => {});
 

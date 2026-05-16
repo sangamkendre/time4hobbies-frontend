@@ -12,7 +12,9 @@ export default function TechTracks() {
   useEffect(() => {
     let live = true;
     api.get('/questions').then((res) => {
-      if (live && Array.isArray(res.data.questions)) setQuestions(res.data.questions);
+      if (live && Array.isArray(res.data.questions)) {
+        setQuestions(res.data.questions.length ? res.data.questions : fallbackQuestions);
+      }
     }).catch(() => {});
     api.get('/site-config').then((res) => {
       if (live && res.data.config) {
