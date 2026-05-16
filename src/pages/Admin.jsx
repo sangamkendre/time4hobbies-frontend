@@ -530,6 +530,23 @@ export default function Admin() {
       .catch((err) => notify(err.response?.data?.error || 'Failed to send emails', 'err'));
   };
 
+  const sendBroadcastNotification = async (type) => {
+    const labels = {
+      magazine: 'Magazine Published',
+      questions: 'New Quiz Questions',
+      video: 'New YouTube Video'
+    };
+    if (!window.confirm(`Are you sure you want to send an email to ALL users for: ${labels[type]}?`)) return;
+    
+    notify('Sending notifications... this may take a moment', 'ok');
+    try {
+      const res = await api.post('/users/notify-all', { type });
+      notify(res.data.message || 'Notifications sent successfully!', 'ok');
+    } catch (err) {
+      notify(err.response?.data?.error || 'Failed to send notifications', 'err');
+    }
+  };
+
   const updateHotspotField = (index, field, value) => {
     setHotspots((current) => current.map((hotspot, i) => (i === index ? { ...hotspot, [field]: value } : hotspot)));
   };
@@ -547,6 +564,7 @@ export default function Admin() {
             ['articles', 'Articles'],
             ['questions', 'Questions'],
             ['users', 'Users'],
+            ['notifications', 'Notifications'],
           ].map(([key, label]) => (
             <button className={`sb-link ${tab === key ? 'active' : ''}`} type="button" key={key} onClick={() => setTab(key)}>
               <span className="sb-icon">{label.slice(0, 1)}</span>{label}
@@ -1093,6 +1111,31 @@ export default function Admin() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {tab === 'notifications' && (
+              <div className="admin-panels active">
+                <h1 className="admin-pg-title">Broadcast <span>Notifications</span></h1>
+                
+                <div className="issue-form">
+                  <div className="issue-form-title">Send Broadcast Emails</div>
+                  <p style={{ marginBottom: '20px', color: 'var(--muted)' }}>
+                    Notify all registered users about new content. Emails are sent individually to ensure privacy.
+                  </p>
+
+                  <div className="f-row" style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                    <button className="btn-solid-green" type="button" onClick={() => sendBroadcastNotification('magazine')} disabled={isUploading}>
+                      Notify: Magazine Published
+                    </button>
+                    <button className="btn-act btn-blue" type="button" onClick={() => sendBroadcastNotification('questions')} disabled={isUploading}>
+                      Notify: New Quiz Questions
+                    </button>
+                    <button className="btn-act btn-red" type="button" onClick={() => sendBroadcastNotification('video')} disabled={isUploading}>
+                      Notify: New YouTube Video
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
