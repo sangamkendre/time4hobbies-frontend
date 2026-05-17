@@ -15,6 +15,7 @@ import Quiz from './pages/Quiz';
 import Admin from './pages/Admin';
 import TechTracks from './pages/TechTracks';
 import WallOfFame from './pages/WallOfFame';
+import Videos from './pages/Videos';
 import Loader from './components/Loader';
 
 const PrivateRoute = ({ children }) => {
@@ -45,6 +46,7 @@ const App = () => {
           <Route path="/forgot-username" element={<ForgotUsername />} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/wall-of-fame" element={<WallOfFame />} />
+          <Route path="/videos" element={<Videos />} />
           <Route path="/tech-tracks" element={<PrivateRoute><TechTracks /></PrivateRoute>} />
           <Route path="/quiz/:category" element={<PrivateRoute><Quiz /></PrivateRoute>} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />

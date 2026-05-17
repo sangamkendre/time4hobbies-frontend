@@ -77,6 +77,13 @@ export default function NavBar({ compact = false }) {
               Quiz
             </button>
             <button
+              className={`nav-link ${location.pathname === '/videos' ? 'active' : ''}`}
+              type="button"
+              onClick={() => navTo('/videos')}
+            >
+              Videos
+            </button>
+            <button
               className={`nav-link ${location.pathname === '/wall-of-fame' ? 'active' : ''}`}
               type="button"
               onClick={() => navTo('/wall-of-fame')}
