@@ -256,6 +256,30 @@ export default function WallOfFame() {
           .podium-category {
             flex: 0 0 calc(33.333% - 27px);
           }
+        @media (max-width: 768px) {
+          .wof-header h1 {
+            font-size: 3rem;
+          }
+          .podium-grid {
+            gap: 40px;
+          }
+          .podium-category {
+            padding: 20px;
+          }
+          .podium-container {
+            height: 200px;
+            gap: 5px;
+          }
+          .podium-item {
+            width: 80px;
+          }
+          .p-name {
+            font-size: 0.8rem;
+          }
+          .podium-1st .podium-block { height: 120px; }
+          .podium-2nd .podium-block { height: 80px; }
+          .podium-3rd .podium-block { height: 50px; }
+          .podium-block { font-size: 1.5rem; padding-top: 10px; }
         }
       `}</style>
       <main className="page-body wof-page">

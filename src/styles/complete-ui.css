@@ -576,6 +576,30 @@ textarea.f-input{resize:vertical;min-height:80px;}
   
   .interactive-issue-bar{flex-direction:column;align-items:flex-start;gap:12px;}
   .interactive-issue-frame iframe{height:60vh;}
+
+  .f-row, .articles-cms-grid, .category-cms-grid, .admin-split, .dash-bottom, .track-grid { grid-template-columns:1fr; }
+
+  .admin-layout{grid-template-columns:1fr;}
+  .admin-sidebar{
+    display:flex;
+    overflow-x:auto;
+    border-right:none;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    padding:16px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .sb-section{display:none;}
+  .sb-link{
+    border-left:none;
+    border-bottom:2px solid transparent;
+    width:auto;
+    padding:8px 16px;
+    white-space:nowrap;
+  }
+  .sb-link.active{
+    border-left-color:transparent;
+    border-bottom-color:var(--green);
+  }
 }
 
 @media(max-width:480px){
@@ -585,12 +609,9 @@ textarea.f-input{resize:vertical;min-height:80px;}
   .mag-issue-title{font-size:2rem;}
   .reader-step{font-size:0.5rem;padding:7px 10px;}
   .reader-progress{gap:6px;}
-  .dash-bottom,.f-row,.articles-cms-grid,.category-cms-grid,.admin-split,.track-grid{grid-template-columns:1fr;}
   .dash-hero{flex-direction:column;text-align:center;padding:24px;}
   .ds-num{font-size:2.2rem;}
   .cat-grid{grid-template-columns:1fr;}
-  .admin-layout{grid-template-columns:1fr;}
-  .admin-sidebar{display:none;}
   .admin-content{padding:24px 16px;}
   .q-opts{grid-template-columns:1fr;}
   .auth-box,.result-box{width:calc(100vw - 32px);margin:16px;padding:32px 24px;}
