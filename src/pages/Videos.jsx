@@ -59,10 +59,51 @@ export default function Videos() {
           <div className="sec-hdr" style={{ textAlign: 'center', alignItems: 'center' }}>
             <span className="sec-tag">Time4Hobbies</span>
             <h2 className="sec-title" style={{ fontSize: '3rem', margin: '1rem 0' }}>Latest Videos</h2>
-            <p style={{ color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto 2rem' }}>
-              Catch up on our latest tutorials, insights, and hobby deep-dives straight from our YouTube channel.
-            </p>
-            <div className="sec-line" style={{ margin: '0 auto' }} />
+            <div style={{
+              background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '20px',
+              padding: '1.5rem 2rem',
+              maxWidth: '700px',
+              margin: '0 auto 3rem',
+              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.3)',
+              backdropFilter: 'blur(12px)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1.5rem',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              {/* Subtle accent glows */}
+              <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '120px', height: '120px', background: 'var(--green)', opacity: '0.15', filter: 'blur(40px)', borderRadius: '50%' }}></div>
+              <div style={{ position: 'absolute', bottom: '-50%', right: '-10%', width: '120px', height: '120px', background: '#ff0000', opacity: '0.15', filter: 'blur(40px)', borderRadius: '50%' }}></div>
+              
+              <div style={{
+                background: 'rgba(255, 0, 0, 0.1)',
+                color: '#ff0000',
+                padding: '14px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: '0 0 20px rgba(255, 0, 0, 0.2)'
+              }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                </svg>
+              </div>
+              
+              <p style={{ 
+                color: 'var(--text-muted)', 
+                margin: 0, 
+                fontSize: '1.15rem', 
+                lineHeight: '1.6',
+                textAlign: 'left'
+              }}>
+                Catch up on our latest <strong style={{ color: 'var(--text)' }}>tutorials</strong>, <strong style={{ color: 'var(--text)' }}>insights</strong>, and <strong style={{ color: 'var(--text)' }}>hobby deep-dives</strong> straight from our <a href="https://www.youtube.com/@time4hobbies" target="_blank" rel="noreferrer" style={{ color: '#ff0000', textDecoration: 'none', fontWeight: 'bold' }}>YouTube channel</a>.
+              </p>
+            </div>
           </div>
 
           {loading ? (
