@@ -256,6 +256,7 @@ export default function WallOfFame() {
           .podium-category {
             flex: 0 0 calc(33.333% - 27px);
           }
+        }
         @media (max-width: 768px) {
           .wof-header h1 {
             font-size: 3rem;

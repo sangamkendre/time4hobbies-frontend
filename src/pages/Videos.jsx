@@ -59,21 +59,7 @@ export default function Videos() {
           <div className="sec-hdr" style={{ textAlign: 'center', alignItems: 'center' }}>
             <span className="sec-tag">Time4Hobbies</span>
             <h2 className="sec-title" style={{ fontSize: '3rem', margin: '1rem 0' }}>Latest Videos</h2>
-            <div style={{
-              background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '20px',
-              padding: '1.5rem 2rem',
-              maxWidth: '700px',
-              margin: '0 auto 3rem',
-              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.3)',
-              backdropFilter: 'blur(12px)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1.5rem',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
+            <div className="videos-hero-banner">
               {/* Subtle accent glows */}
               <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '120px', height: '120px', background: 'var(--green)', opacity: '0.15', filter: 'blur(40px)', borderRadius: '50%' }}></div>
               <div style={{ position: 'absolute', bottom: '-50%', right: '-10%', width: '120px', height: '120px', background: '#ff0000', opacity: '0.15', filter: 'blur(40px)', borderRadius: '50%' }}></div>
@@ -118,12 +104,7 @@ export default function Videos() {
               </a>
             </div>
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: '2rem',
-              marginTop: '3rem'
-            }}>
+            <div className="videos-grid">
               {videos.map((vid, idx) => (
                 <div 
                   key={vid.id || idx} 
@@ -195,15 +176,8 @@ export default function Videos() {
 
       {/* Video Modal Popup */}
       {activeVideo && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 9999,
-          backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem'
-        }} onClick={closeVideo}>
-          <div style={{
-            position: 'relative', width: '100%', maxWidth: '1000px', backgroundColor: '#000',
-            borderRadius: '12px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
-          }} onClick={e => e.stopPropagation()}>
+        <div className="video-modal-overlay" onClick={closeVideo}>
+          <div className="video-modal-content" onClick={e => e.stopPropagation()}>
             <button 
               onClick={closeVideo}
               style={{
