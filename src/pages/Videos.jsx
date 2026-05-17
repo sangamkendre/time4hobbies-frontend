@@ -72,7 +72,7 @@ export default function Videos() {
           ) : videos.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
               <p>No videos available right now. Please check back later.</p>
-              <a href="http://www.youtube.com/time4hobbies" target="_blank" rel="noreferrer" className="nbtn primary" style={{ marginTop: '1rem' }}>
+              <a href="https://www.youtube.com/@time4hobbies" target="_blank" rel="noreferrer" className="nbtn primary" style={{ marginTop: '1rem' }}>
                 Visit Channel directly
               </a>
             </div>
@@ -145,7 +145,7 @@ export default function Videos() {
           )}
 
           <div style={{ textAlign: 'center', marginTop: '4rem' }}>
-            <a href="http://www.youtube.com/time4hobbies" target="_blank" rel="noreferrer" className="hero-btn solid">
+            <a href="https://www.youtube.com/@time4hobbies" target="_blank" rel="noreferrer" className="hero-btn solid">
               Subscribe to our Channel
             </a>
           </div>
