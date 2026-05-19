@@ -8,6 +8,9 @@ export default function Videos() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeVideo, setActiveVideo] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('All');
+
+  const categories = ['All', 'Games', 'Aquascape', 'IoT', 'Linux'];
 
   useEffect(() => {
     let live = true;
@@ -104,66 +107,113 @@ export default function Videos() {
               </a>
             </div>
           ) : (
-            <div className="videos-grid">
-              {videos.map((vid, idx) => (
-                <div 
-                  key={vid.id || idx} 
-                  className="glass-card" 
-                  style={{ 
-                    padding: 0, 
-                    overflow: 'hidden', 
-                    cursor: 'pointer',
-                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-8px)';
-                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,255,170,0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                  onClick={() => openVideo(vid)}
-                >
-                  <div style={{ position: 'relative', paddingTop: '56.25%', backgroundColor: '#000' }}>
-                    <img 
-                      src={vid.thumbnail} 
-                      alt={vid.title} 
-                      style={{
-                        position: 'absolute',
-                        top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover',
-                        opacity: 0.9, transition: 'opacity 0.3s ease'
-                      }} 
-                    />
-                    <div style={{
-                      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                      width: '60px', height: '60px', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '50%',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)',
-                      border: '2px solid rgba(255,255,255,0.2)'
-                    }}>
+            <>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    style={{
+                      background: activeCategory === cat ? 'rgba(0, 255, 170, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                      color: activeCategory === cat ? 'var(--green)' : 'var(--text-muted)',
+                      border: `1px solid ${activeCategory === cat ? 'var(--green)' : 'rgba(255, 255, 255, 0.1)'}`,
+                      padding: '0.6rem 1.5rem',
+                      borderRadius: '30px',
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      boxShadow: activeCategory === cat ? '0 0 15px rgba(0, 255, 170, 0.2)' : 'none',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (activeCategory !== cat) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                        e.currentTarget.style.color = 'var(--text)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (activeCategory !== cat) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                        e.currentTarget.style.color = 'var(--text-muted)';
+                      }
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              <div className="videos-grid">
+                {videos
+                  .filter(vid => activeCategory === 'All' || vid.category === activeCategory)
+                  .map((vid, idx) => (
+                  <div 
+                    key={vid.id || idx} 
+                    className="glass-card" 
+                    style={{ 
+                      padding: 0, 
+                      overflow: 'hidden', 
+                      cursor: 'pointer',
+                      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-8px)';
+                      e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,255,170,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                    onClick={() => openVideo(vid)}
+                  >
+                    <div style={{ position: 'relative', paddingTop: '56.25%', backgroundColor: '#000' }}>
+                      <img 
+                        src={vid.thumbnail} 
+                        alt={vid.title} 
+                        style={{
+                          position: 'absolute',
+                          top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover',
+                          opacity: 0.9, transition: 'opacity 0.3s ease'
+                        }} 
+                      />
                       <div style={{
-                        width: 0, height: 0, borderTop: '10px solid transparent',
-                        borderBottom: '10px solid transparent', borderLeft: '16px solid var(--green)',
-                        marginLeft: '5px'
-                      }} />
+                        position: 'absolute', top: '10px', left: '10px',
+                        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+                        color: 'var(--green)', padding: '4px 10px', borderRadius: '4px',
+                        fontSize: '0.75rem', fontWeight: 600, border: '1px solid rgba(0,255,170,0.3)'
+                      }}>
+                        {vid.category || 'General'}
+                      </div>
+                      <div style={{
+                        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                        width: '60px', height: '60px', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '50%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)',
+                        border: '2px solid rgba(255,255,255,0.2)'
+                      }}>
+                        <div style={{
+                          width: 0, height: 0, borderTop: '10px solid transparent',
+                          borderBottom: '10px solid transparent', borderLeft: '16px solid var(--green)',
+                          marginLeft: '5px'
+                        }} />
+                      </div>
+                    </div>
+                    <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--text)', lineHeight: 1.4 }}>
+                        {vid.title}
+                      </h3>
+                      <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem' }}>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                          {new Date(vid.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </span>
+                        <span style={{ color: 'var(--green)', fontSize: '0.9rem', fontWeight: 600 }}>Play Video</span>
+                      </div>
                     </div>
                   </div>
-                  <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--text)', lineHeight: 1.4 }}>
-                      {vid.title}
-                    </h3>
-                    <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                        {new Date(vid.publishedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
-                      </span>
-                      <span style={{ color: 'var(--green)', fontSize: '0.9rem', fontWeight: 600 }}>Play Video</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </>
           )}
 
           <div style={{ textAlign: 'center', marginTop: '4rem' }}>

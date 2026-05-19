@@ -47,6 +47,12 @@ const emptyArticle = {
   sort_order: '0',
 };
 
+const emptyVideo = {
+  youtube_id: '',
+  title: '',
+  category: 'Games',
+};
+
 const categoryColors = {
   green: 'var(--green)',
   blue: 'var(--blue)',
@@ -85,6 +91,11 @@ export default function Admin() {
   const [editingIssueId, setEditingIssueId] = useState(null);
   const [editingQuestionId, setEditingQuestionId] = useState(null);
   const [editingArticleId, setEditingArticleId] = useState(null);
+  
+  const [videos, setVideos] = useState([]);
+  const [videoForm, setVideoForm] = useState(emptyVideo);
+  const [editingVideoId, setEditingVideoId] = useState(null);
+
   const [bulkJson, setBulkJson] = useState('');
   const [showBulk, setShowBulk] = useState(false);
   const fileInputRef = useRef(null);
@@ -143,6 +154,10 @@ export default function Admin() {
         
         setSiteConfig({ ...fallbackSiteConfig, ...fetchedConfig });
       }
+    }).catch(() => {});
+    
+    api.get('/youtube/videos').then((res) => {
+      setVideos(res.data.videos || []);
     }).catch(() => {});
   };
 
@@ -439,6 +454,49 @@ export default function Admin() {
     loadArticles();
   };
 
+  const saveVideo = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingVideoId) {
+        await api.put(`/youtube/videos/${editingVideoId}`, videoForm);
+        notify('Video updated', 'ok');
+      } else {
+        await api.post('/youtube/videos', videoForm);
+        notify('Video saved', 'ok');
+      }
+
+      setVideoForm(emptyVideo);
+      setEditingVideoId(null);
+      load(); // refresh videos
+    } catch (err) {
+      notify(err.response?.data?.error || 'Could not save video', 'err');
+    }
+  };
+
+  const editVideo = (video) => {
+    setVideoForm({
+      youtube_id: video.id,
+      title: video.title,
+      category: video.category || 'Games',
+    });
+    setEditingVideoId(video.backend_id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEditVideo = () => {
+    setVideoForm(emptyVideo);
+    setEditingVideoId(null);
+  };
+
+  const deleteVideo = async (id) => {
+    if (!window.confirm('Delete this video?')) return;
+    await api.delete(`/youtube/videos/${id}`)
+      .then(() => notify('Video deleted', 'ok'))
+      .catch((err) => notify(err.response?.data?.error || 'Delete failed', 'err'));
+    load();
+  };
+
+
   const addHotspot = async (e) => {
     e.preventDefault();
     if (!selectedIssueId) {
@@ -563,6 +621,7 @@ export default function Admin() {
             ['issues', 'Issues'],
             ['articles', 'Articles'],
             ['questions', 'Questions'],
+            ['videos', 'Videos'],
             ['users', 'Users'],
             ['notifications', 'Notifications'],
           ].map(([key, label]) => (
@@ -1135,6 +1194,68 @@ export default function Admin() {
                       Notify: New YouTube Video
                     </button>
                   </div>
+                </div>
+          </div>
+            )}
+
+            {tab === 'videos' && (
+              <div className="admin-panels active">
+                <h1 className="admin-pg-title">Manage <span>Videos</span></h1>
+                
+                <form className="issue-form" onSubmit={saveVideo}>
+                  <div className="issue-form-title">{editingVideoId ? 'Update Video' : 'Add Video'}</div>
+                  <div className="f-row">
+                    <div>
+                      <label className="f-label">YouTube ID (or Link)</label>
+                      <input className="f-input" value={videoForm.youtube_id} onChange={(e) => {
+                        let val = e.target.value;
+                        if (val.includes('v=')) val = val.split('v=')[1]?.split('&')[0];
+                        else if (val.includes('youtu.be/')) val = val.split('youtu.be/')[1]?.split('?')[0];
+                        setVideoForm({ ...videoForm, youtube_id: val });
+                      }} placeholder="e.g. dQw4w9WgXcQ" />
+                    </div>
+                    <div>
+                      <label className="f-label">Category</label>
+                      <select className="f-input" value={videoForm.category} onChange={(e) => setVideoForm({ ...videoForm, category: e.target.value })}>
+                        <option value="Games">Games</option>
+                        <option value="Aquascape">Aquascape</option>
+                        <option value="IoT">IoT</option>
+                        <option value="Linux">Linux</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="f-group">
+                    <label className="f-label">Title</label>
+                    <input className="f-input" value={videoForm.title} onChange={(e) => setVideoForm({ ...videoForm, title: e.target.value })} />
+                  </div>
+                  
+                  <div className="f-row" style={{ marginTop: '1rem' }}>
+                    <button className="btn-solid-green" type="submit">{editingVideoId ? 'Save Changes' : 'Add Video'}</button>
+                    {editingVideoId && (
+                      <button className="btn-act btn-red" type="button" onClick={cancelEditVideo}>Cancel</button>
+                    )}
+                  </div>
+                </form>
+
+                <div className="issues-list">
+                  {videos.length === 0 ? (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--muted)' }}>No videos found.</div>
+                  ) : videos.map((video) => (
+                    <div className="issue-item" key={video.backend_id}>
+                      <div className="ii-cover">
+                        <img src={video.thumbnail} alt={video.title} style={{ width: '100px', objectFit: 'cover' }} />
+                      </div>
+                      <div className="ii-info">
+                        <h3>{video.title}</h3>
+                        <p style={{ color: 'var(--muted)', fontSize: '0.9rem', margin: '5px 0' }}>Category: {video.category || 'N/A'}</p>
+                        <a href={video.link} target="_blank" rel="noreferrer" style={{ color: 'var(--green)', fontSize: '0.8rem' }}>Watch on YouTube</a>
+                      </div>
+                      <div className="ii-actions">
+                        <button className="btn-act btn-green" type="button" onClick={() => editVideo(video)}>Edit</button>
+                        <button className="btn-act btn-red" type="button" onClick={() => deleteVideo(video.backend_id)}>Delete</button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
