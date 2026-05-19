@@ -130,8 +130,25 @@ textarea.f-input{resize:vertical;min-height:80px;}
 .h-glow{position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(61,255,160,0.065) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
 .issue-pill{font-family:'JetBrains Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.28em;color:var(--green);border:1px solid rgba(61,255,160,0.3);padding:7px 20px;display:inline-block;margin-bottom:36px;position:relative;z-index:1;}
 .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(5rem,13vw,11rem);line-height:0.88;position:relative;z-index:1;margin-bottom:32px;}
-.hero-title .ht-outline{-webkit-text-stroke:1px rgba(255,255,255,0.22);color:transparent;display:block;transition:all 0.4s;}
-.hero-title:hover .ht-outline{-webkit-text-stroke:1px var(--text);}
+.hero-title .ht-outline {
+  background: linear-gradient(90deg, #b86bff, #4da6ff, #3dffa0, #b86bff);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: block;
+  animation: textShineAnim 6s linear infinite;
+  filter: drop-shadow(0 0 15px rgba(184,107,255,0.3));
+  transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.hero-title:hover .ht-outline {
+  filter: drop-shadow(0 0 30px rgba(184,107,255,0.6)) drop-shadow(0 0 60px rgba(77,166,255,0.4));
+  transform: scale(1.02) translateX(10px);
+}
+@keyframes textShineAnim {
+  0% { background-position: 0% center; }
+  100% { background-position: 300% center; }
+}
 .hero-title .ht-accent{background:linear-gradient(90deg, var(--green), #00ffcc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;filter:drop-shadow(0 0 20px rgba(61,255,160,0.2));}
 .hero-sub{font-size:1rem;font-weight:300;color:var(--muted);max-width:520px;line-height:1.75;position:relative;z-index:1;margin-bottom:44px;}
 .hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
